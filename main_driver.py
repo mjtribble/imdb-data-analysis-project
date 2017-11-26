@@ -54,9 +54,11 @@ def query():
     #           "WHERE employee.Super_ssn IS NOT NULL;")
 
     cursor.execute(query2)
-
+    query2_dict = {}
     for (Primary_title, Total_gross, Budget) in cursor:
-        print("{}, {}, {}".format(Primary_title, Total_gross, Budget))
+        # print("{}, {}, {}".format(Primary_title, Total_gross, Budget))
+        query2_dict.update({Primary_title: [Total_gross, Budget]})
+    # print(query2_dict)
 
     # for response in cursor:
     #     print(response)
