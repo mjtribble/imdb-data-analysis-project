@@ -34,9 +34,9 @@ def query():
     #
     # # As a movie's budget increases do the sales also continuously increase
     # # query a movie budget and sales.
-    query2 = ("SELECT Total_gross , Budget "
-              "FROM MOVIE "
-              "WHERE NOT Total_gross=0 AND NOT Budget=0 ")
+    query2 = ("SELECT Primary_title, Total_gross , Budget "
+              "FROM MOVIE, TITLE "
+              "WHERE TM_const=T_const AND NOT Total_gross=0 AND NOT Budget=0 ")
     #
     # # Can we predict a genre based on the actor and director of a film
     # query3 = ("SELECT * "
@@ -55,8 +55,8 @@ def query():
 
     cursor.execute(query2)
 
-    for (Total_gross, Budget) in cursor:
-        print("{}, {}".format(Total_gross, Budget))
+    for (Primary_title, Total_gross, Budget) in cursor:
+        print("{}, {}, {}".format(Primary_title, Total_gross, Budget))
 
     # for response in cursor:
     #     print(response)
