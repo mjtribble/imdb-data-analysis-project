@@ -11,6 +11,7 @@ import pandas as pd
 from pandas import DataFrame
 import seaborn as sns
 import pymysql
+import regression
 
 
 def query():
@@ -27,21 +28,22 @@ def query():
     # EXECUTE AND PRINT QUERY 2
     # # As a movie's budget increases do the sales also continuously increase
     # # query a movie budget and sales.
-    query2 = ("SELECT Primary_title, Total_gross , Budget "
+    query2 = ("SELECT Total_gross , Budget "
               "FROM MOVIE, TITLE "
               "WHERE TM_const=T_const AND NOT Total_gross=0 AND NOT Budget=0 "
               "ORDER BY Budget "
               )
 
     cursor.execute(query2)
-    raw_data = []
+    raw_data_2 = []
     for response in cursor:
-        raw_data.append(response)
+        raw_data_2.append(response)
 
-    df = pd.DataFrame(raw_data, columns=("Title", "Gross", "Budget"))
+    df_2 = pd.DataFrame(raw_data_2, columns=("Gross", "Budget"))
 
-    print(df)
+    print(df_2)
 
+    regression.LRegression(df_2)
 
     # EXECUTE AND PRINT QUERY 3
     # Can we predict a genre based on the actor and director of a film
