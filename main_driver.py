@@ -8,6 +8,7 @@ import correlation
 import classification
 import regression
 import pandas as pd
+from pandas import DataFrame
 import seaborn as sns
 import pymysql
 
@@ -26,18 +27,21 @@ def query():
     # EXECUTE AND PRINT QUERY 2
     # # As a movie's budget increases do the sales also continuously increase
     # # query a movie budget and sales.
-    # query2 = ("SELECT Primary_title, Total_gross , Budget "
-    #           "FROM MOVIE, TITLE "
-    #           "WHERE TM_const=T_const AND NOT Total_gross=0 AND NOT Budget=0 "
-    #           "ORDER BY Budget "
-    #           )
-    #
-    # cursor.execute(query2)
-    # query2_dict = {}
-    #
-    # for (Primary_title, Total_gross, Budget) in cursor:
-    #     print("{}, {}, {}".format(Primary_title, Total_gross, Budget))
-    #     query2_dict.update({Primary_title: (Total_gross, Budget)})
+    query2 = ("SELECT Primary_title, Total_gross , Budget "
+              "FROM MOVIE, TITLE "
+              "WHERE TM_const=T_const AND NOT Total_gross=0 AND NOT Budget=0 "
+              "ORDER BY Budget "
+              )
+
+    cursor.execute(query2)
+    raw_data = []
+    for response in cursor:
+        raw_data.append(response)
+
+    df = pd.DataFrame(raw_data, columns=("Title", "Gross", "Budget"))
+
+    print(df)
+
 
     # EXECUTE AND PRINT QUERY 3
     # Can we predict a genre based on the actor and director of a film
@@ -62,23 +66,26 @@ def query():
 
     # EXECUTE AND PRINT QUERY 4
     # What is the probability that a particular genre is more popular in the U.S. vs. other countries?
-    query4 = ("SELECT Country, Genre "
-              "FROM TITLE_GENRE, MOVIE_COUNTRIES "
-              "WHERE TC_const = TG_const ")
-
-    cursor.execute(query4)
+    # query4 = ("SELECT Country, Genre "
+    #           "FROM TITLE_GENRE, MOVIE_COUNTRIES "
+    #           "WHERE TC_const = TG_const "
+    #           "ORDER BY Country, Genre "
+    #           )
+    #
+    # cursor.execute(query4)
 
     # not sure how we want this data, right now it is creating a list of genres for a particular country.
-    query4_dict = {}
+    # query4_dict = {}
 
-    for (Country, Genre ) in cursor:
-        # print("{}, {}, {}".format(Genre, ACTOR_N_const, DIRECTOR_N_const))
-        if Country in query4_dict:
-            query4_dict[Country].append(Genre)
-        else:
-            query4_dict.update({Country: [Genre]})
+    # for (Country, Genre) in cursor:
+    #     # print("{}, {}, {}".format(Genre, ACTOR_N_const, DIRECTOR_N_const))
+    #     if Country in query4_dict:
+    #         query4_dict[Country].append(Genre)
+    #     else:
+    #         query4_dict.update({Country: [Genre]})
 
-    print(query4_dict)
+    # print(query4_dict)
+
     # for response in cursor:
     #     print(response)
 
