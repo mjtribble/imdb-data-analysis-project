@@ -95,15 +95,17 @@ def query_3():
     query3_dict = {}
 
     for (Genre, ACTOR_N_const, DIRECTOR_N_const) in cursor:
+        actor_name = ACTOR_N_const[4:]
+        director_name = DIRECTOR_N_const[4:]
         if Genre in query3_dict:
-            query3_dict[Genre].append(ACTOR_N_const)
-            query3_dict[Genre].append(DIRECTOR_N_const)
+            query3_dict[Genre].append(actor_name)
+            query3_dict[Genre].append(director_name)
         else:
-            query3_dict.update({Genre: [ACTOR_N_const, DIRECTOR_N_const]})
+            query3_dict.update({Genre: [actor_name, director_name]})
 
     # print dictionary
     # for key in query3_dict: print(key, query3_dict[key])
-    classification.NN(query3_dict)
+    classification.KNN(query3_dict)
 
 # ************** EXECUTE AND PRINT QUERY 4 *******************************
 # What is the probability that a particular genre is more popular in the U.S. vs. other countries?
