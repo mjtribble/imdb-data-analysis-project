@@ -44,20 +44,24 @@ def query():
         try:
             age = int(Release_date) - int(Birth_year)
             if Actor1_name in query1_dict:
-                query1_dict[Actor1_name].add((age, Movie_title))
+                query1_dict[Actor1_name].append(age)
             else:
-                query1_dict.update({Actor1_name: set()})
-                query1_dict[Actor1_name].add((age, Movie_title))
+                query1_dict.update({Actor1_name: [age]})
 
         # This will catch an exception if either year values cannot be converted to an int.
         except ValueError:
             continue
 
-    print(query1_dict)
-
+    # print(query1_dict)
+    first_item = next(iter(query1_dict))
+    df_1 = pd.DataFrame({"Name": first_item, "Age": query1_dict[first_item]})
     # need to create a data frame with people and age ranges.
-    # df_1 = pd.DataFrame(query1_dict)
-    # print(df_1)
+
+    for key in query1_dict:
+        df_1a = pd.DataFrame({"Name": key, "Age": query1_dict[key]})
+        df_1 = pd.concat([df_1, df_1a])
+
+    print(df_1)
 
 
     # ********** EXECUTE AND PRINT QUERY 2************************
