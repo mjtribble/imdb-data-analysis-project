@@ -6,6 +6,7 @@ Created on November 14, 2017
 import pandas as pd
 import pymysql
 import regression
+import correlation
 
 
 def query():
@@ -33,36 +34,24 @@ def query():
     # This will hold the query results
     query1_dict = {}
 
-    # Creates a dictionary where the key is the person's name, and the value is a set of tuples
-    # Name: (Age, Title), (Age, Title)...
+    # Creates a dictionary where the key a person's age, and the value is count of roles for that age
     for (Actor1_name, Movie_title, Release_date, Birth_year) in cursor:
-
-        # clean the title name
-        Movie_title = ''.join(Movie_title.split())
-
-        # try to calculate the age and set values
+        # tries to calculate the age based on query results and count the number of roles per age.
         try:
             age = int(Release_date) - int(Birth_year)
-            if Actor1_name in query1_dict:
-                query1_dict[Actor1_name].append(age)
+            if age in query1_dict:
+                query1_dict[age] += 1
             else:
-                query1_dict.update({Actor1_name: [age]})
+                query1_dict.update({age: 1})
 
-        # This will catch an exception if either year values cannot be converted to an int.
+                # This will catch an exception if either year values cannot be converted to an int.
         except ValueError:
             continue
 
     # print(query1_dict)
-    first_item = next(iter(query1_dict))
-    df_1 = pd.DataFrame({"Name": first_item, "Age": query1_dict[first_item]})
-    # need to create a data frame with people and age ranges.
 
-    for key in query1_dict:
-        df_1a = pd.DataFrame({"Name": key, "Age": query1_dict[key]})
-        df_1 = pd.concat([df_1, df_1a])
-
-    print(df_1)
-
+    # Analyse data with Pearson's Correlation Coefficient
+    correlation.Pearson(query1_dict)
 
     # ********** EXECUTE AND PRINT QUERY 2************************
     # # As a movie's budget increases do the sales also continuously increase
