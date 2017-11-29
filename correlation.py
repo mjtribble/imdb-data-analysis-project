@@ -6,6 +6,7 @@ Created on November 14, 2017
 
 import collections
 from scipy.stats.stats import pearsonr
+from scipy.stats.stats import spearmanr
 
 
 # This class calculates the Pearson's correlation coefficient and p-value for a given dataset
@@ -15,8 +16,9 @@ class Pearson:
     # @param data = dictionary containing two sets of data to analyse
     def __init__(self, data):
         self.data = data  # This is a dictionary {Age: number of roles}
-        print('Created Pearson: Is there a positive or a negative correlation between age and number of roles an '
+        print('Is there a positive or a negative correlation between age and number of roles an '
               'actor stars in?')
+        print("Using Pearson's Correlation Coefficient")
         self.run_pearson()
 
     # This splits the data into two lists and runs personr on it.
@@ -38,10 +40,9 @@ class Pearson:
 
         # set pcc and pvalue as the values returned from pearsonr()
         pcc, pvalue = pearsonr(age_list, num_roles_list)
-        
+
         print("Pearson correlation coefficient: ", pcc)
         print("P-value: ", pvalue)
-
 
 
 class SpearmanRank:

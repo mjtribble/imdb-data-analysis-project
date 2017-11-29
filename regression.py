@@ -13,13 +13,17 @@ from sklearn import model_selection
 # This class runs linear regression model on the gross sales and budget of films from the imdb database using this
 # tutorial http://bigdata-madesimple.com/how-to-run-linear-regression-in-python-scikit-learn/
 class LRegression:
+
+    # This creates a new instance of the LRegression class
+    # @param data = data frame of the imdb data
     def __init__(self, data):
         self.data = data
         print('Created Linear Regression')
         self.run_regression()
 
+    # This runs and visualizes the linear regression process
     def run_regression(self):
-        # this removes the gross column from the data frame and sets it to X
+        # budget =  x
         x = self.data.drop('Gross', axis=1)
 
         # this creates a linear regression object
@@ -28,8 +32,8 @@ class LRegression:
 
         # plot relationship b/w budget and gross
         plt.scatter(self.data.Budget, self.data.Gross, s=10)
-        plt.xlabel("Total film budget USD")
-        plt.ylabel("Total film gross USD")
+        plt.xlabel("Total film budget (million USD)")
+        plt.ylabel("Total film gross (million USD)")
         plt.title("Relationship between Budget and Gross Sales")
         plt.show()
 
