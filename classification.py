@@ -8,6 +8,7 @@ Created on November 14, 2017
 # This class implements a k-nearest neighbor using scikit-learn
 from sklearn import model_selection
 import numpy as np
+from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsRegressor, KNeighborsClassifier
 import matplotlib.pyplot as plt
 
@@ -29,17 +30,34 @@ class KNN:
         x = []
         y = []
 
-        # x.append(self.data['Action'][:100])
-        [[x.append(self.data['Action'][i:i + 5]), y.append('Action')] for i in range(0, len(self.data['Action']), 5)]
-        [[x.append(self.data['Comedy'][i:i + 5]), y.append('Comedy')] for i in range(0, len(self.data['Comedy']), 5)]
-        [[x.append(self.data['Drama'][i:i + 5]), y.append('Drama')] for i in range(0, len(self.data['Drama']), 5)]
-        [[x.append(self.data['Romance'][i:i + 5]), y.append('Romance')] for i in range(0, len(self.data['Romance']), 5)]
-        [[x.append(self.data['Sci-Fi'][i:i + 5]), y.append('Sci-Fi')] for i in range(0, len(self.data['Sci-Fi']), 5)]
-        [[x.append(self.data['Thriller'][i:i + 5]), y.append('Thriller')] for i in range(0, len(self.data['Thriller']), 5)]
+        # [[x.append(self.data['Action'][i:i + 20]), y.append(0)] for i in range(0, len(self.data['Action']), 20)if len(self.data['Action'][i:i + 20]) == 20]
+        # [[x.append(self.data['Comedy'][i:i + 20]), y.append(1)] for i in range(0, len(self.data['Comedy']), 20)if len(self.data['Comedy'][i:i + 20]) == 20]
+        # [[x.append(self.data['Drama'][i:i + 20]), y.append(2)] for i in range(0, len(self.data['Drama']), 20)if len(self.data['Drama'][i:i + 20]) == 20]
+        # [[x.append(self.data['Romance'][i:i + 20]), y.append(3)] for i in range(0, len(self.data['Romance']), 20)if len(self.data['Romance'][i:i + 20]) == 20]
+        # [[x.append(self.data['Sci-Fi'][i:i + 20]), y.append(4)] for i in range(0, len(self.data['Sci-Fi']), 20)if len(self.data['Sci-Fi'][i:i + 20]) == 20]
+        # [[x.append(self.data['Thriller'][i:i + 20]), y.append(20)] for i in range(0, len(self.data['Thriller']), 20) if len(self.data['Thriller'][i:i + 20]) == 20]
 
-        for k in x:
-            print(len(k))
+
+        [[x.append(self.data['Action'][i:i + 50]), y.append(0)] for i in range(0, len(self.data['Action']), 50)if len(self.data['Action'][i:i + 50]) == 50]
+        [[x.append(self.data['Comedy'][i:i + 50]), y.append(1)] for i in range(0, len(self.data['Comedy']), 50)if len(self.data['Comedy'][i:i + 50]) == 50]
+        [[x.append(self.data['Drama'][i:i + 50]), y.append(2)] for i in range(0, len(self.data['Drama']), 50)if len(self.data['Drama'][i:i + 50]) == 50]
+
+        for s in x:
+            print(len(s))
+
+        # np.unique(y)
+        # np.random.seed(0)
+        # indices = np.random.permutation(len(x))
+        # x_train = x[indices[:-10]]
+        # y_train = y[indices[:-10]]
+        # x_test = x[indices[-10:]]
+        # y_test = y[indices[-10:]]
+        # # Create and fit a nearest-neighbor classifier
+
+        # for k in x:
+        #     print(len(k))
         # print(x, y)
+        # x.append(self.data['Action'][:100])
         # x.append(self.data['Comedy'][:100])
         # x.append(self.data['Crime'][:100])
         # x.append(self.data['Drama'][:100])
@@ -73,8 +91,8 @@ class KNN:
         # print(y)
         # for i in x:
         #     print(i)
-        # x = np.array(x)
-        # y = np.array(y)
+        x = np.array(x)
+        y = np.array(y)
 
         # from sklearn.model_selection import KFold
         # kf = KFold(n_splits=4)
@@ -85,24 +103,22 @@ class KNN:
         #
         # x_train, x_test = x[train_index], x[test_index]
         # y_train, y_test = y[train_index], y[test_index]
-        # # indices = np.random.permutation(len(x))
-        # x_train = x[indices[:-10]]
-        # y_train = y[indices[:-10]]
-        # x_test = x[indices[-10:]]
-        # y_test = y[indices[-10:]]
-        
+
         x_train, x_test, y_train, y_test = model_selection.train_test_split(
-            x, y, test_size=0.33, random_state=5)
+            x, y, test_size=0.33, random_state=42)
 
         # print(x_train.shape)
         # print(x_test.shape)
         # print(y_train.shape)
         # print(y_test.shape)
 
-        knn = KNeighborsClassifier(n_neighbors=3)
+        knn = KNeighborsClassifier(n_neighbors=2)
         knn.fit(x_train, y_train)
-        predictions = knn.predict(x_test)
+        pred = knn.predict(x_test)
         print("Actual: ", y_test)
+        print("Predicted: ", pred)
+        print("Accuracy: ", accuracy_score(y_test, pred)*100)
+
 
         # x_min, x_max = x[:, 0].min() - 1, x[:, 0].max() + 1
         # y_min, y_max = x[:, 1].min() - 1, x[:, 1].max() + 1
@@ -123,10 +139,6 @@ class KNN:
         #     axarr[idx[0], idx[1]].set_title(tt)
         #
         # plt.show()
-
-        print("Predicted: ", predictions)
-
-
 class NaiveBase:
     def __init__(self):
 
