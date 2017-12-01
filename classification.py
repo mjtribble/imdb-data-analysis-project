@@ -4,7 +4,6 @@ Created on November 14, 2017
 
 """
 
-
 # This class implements a k-nearest neighbor using scikit-learn
 from sklearn import model_selection
 import numpy as np
@@ -14,13 +13,12 @@ import matplotlib.pyplot as plt
 
 
 class KNN:
-
     # This creates a new instance of NN
     # @param data = dictionary of Genre's with associated name codes of actors and directors associated with the genre
     # {genre: [names, ....]}
     def __init__(self, data):
         self.data = data
-        print('Can we predict a genre based on the actor and director of a film?')
+        print('\n\nQ3: Can we predict a genre based on the actor and director of a film?')
         print('Created K-Nearest Neighbor')
         self.run_knn()
 
@@ -30,67 +28,13 @@ class KNN:
         x = []
         y = []
 
-        # [[x.append(self.data['Action'][i:i + 20]), y.append(0)] for i in range(0, len(self.data['Action']), 20)if len(self.data['Action'][i:i + 20]) == 20]
-        # [[x.append(self.data['Comedy'][i:i + 20]), y.append(1)] for i in range(0, len(self.data['Comedy']), 20)if len(self.data['Comedy'][i:i + 20]) == 20]
-        # [[x.append(self.data['Drama'][i:i + 20]), y.append(2)] for i in range(0, len(self.data['Drama']), 20)if len(self.data['Drama'][i:i + 20]) == 20]
-        # [[x.append(self.data['Romance'][i:i + 20]), y.append(3)] for i in range(0, len(self.data['Romance']), 20)if len(self.data['Romance'][i:i + 20]) == 20]
-        # [[x.append(self.data['Sci-Fi'][i:i + 20]), y.append(4)] for i in range(0, len(self.data['Sci-Fi']), 20)if len(self.data['Sci-Fi'][i:i + 20]) == 20]
-        # [[x.append(self.data['Thriller'][i:i + 20]), y.append(20)] for i in range(0, len(self.data['Thriller']), 20) if len(self.data['Thriller'][i:i + 20]) == 20]
+        [[x.append(self.data['Action'][i:i + 50]), y.append(0)] for i in range(0, len(self.data['Action']), 50) if
+         len(self.data['Action'][i:i + 50]) == 50]
+        [[x.append(self.data['Comedy'][i:i + 50]), y.append(1)] for i in range(0, len(self.data['Comedy']), 50) if
+         len(self.data['Comedy'][i:i + 50]) == 50]
+        [[x.append(self.data['Drama'][i:i + 50]), y.append(2)] for i in range(0, len(self.data['Drama']), 50) if
+         len(self.data['Drama'][i:i + 50]) == 50]
 
-
-        [[x.append(self.data['Action'][i:i + 50]), y.append(0)] for i in range(0, len(self.data['Action']), 50)if len(self.data['Action'][i:i + 50]) == 50]
-        [[x.append(self.data['Comedy'][i:i + 50]), y.append(1)] for i in range(0, len(self.data['Comedy']), 50)if len(self.data['Comedy'][i:i + 50]) == 50]
-        [[x.append(self.data['Drama'][i:i + 50]), y.append(2)] for i in range(0, len(self.data['Drama']), 50)if len(self.data['Drama'][i:i + 50]) == 50]
-
-        for s in x:
-            print(len(s))
-
-        # np.unique(y)
-        # np.random.seed(0)
-        # indices = np.random.permutation(len(x))
-        # x_train = x[indices[:-10]]
-        # y_train = y[indices[:-10]]
-        # x_test = x[indices[-10:]]
-        # y_test = y[indices[-10:]]
-        # # Create and fit a nearest-neighbor classifier
-
-        # for k in x:
-        #     print(len(k))
-        # print(x, y)
-        # x.append(self.data['Action'][:100])
-        # x.append(self.data['Comedy'][:100])
-        # x.append(self.data['Crime'][:100])
-        # x.append(self.data['Drama'][:100])
-        # x.append(self.data['Romance'][:100])
-        # x.append(self.data['Sci-Fi'][:100])
-        # x.append(self.data['Thriller'][:100])
-        #
-        # y.append('Action')
-        # y.append('Comedy')
-        # y.append('Crime')
-        # y.append('Drama')
-        # y.append('Romance')
-        # y.append('Sci-Fi')
-        # y.append('Thriller')
-
-        # x.append(self.data['Action'][:200])
-        # x.append(self.data['Comedy'][:200])
-        # x.append(self.data['Crime'][:200])
-        # x.append(self.data['Drama'][:200])
-        #
-        # y.append('Action')
-        # y.append('Comedy')
-        # y.append('Crime')
-        # y.append('Drama')
-
-        # for i in self.data:
-        #     print(len(self.data[i]))
-            # y.append(key)
-        #     x.append(self.data[key])
-
-        # print(y)
-        # for i in x:
-        #     print(i)
         x = np.array(x)
         y = np.array(y)
 
@@ -107,40 +51,24 @@ class KNN:
         x_train, x_test, y_train, y_test = model_selection.train_test_split(
             x, y, test_size=0.33, random_state=42)
 
+        key_dict = {0: 'Action',
+                    1: 'Comedy',
+                    2: 'Drama'
+                    }
+
         # print(x_train.shape)
         # print(x_test.shape)
         # print(y_train.shape)
         # print(y_test.shape)
 
-        knn = KNeighborsClassifier(n_neighbors=2)
+        knn = KNeighborsClassifier(n_neighbors=1)
         knn.fit(x_train, y_train)
         pred = knn.predict(x_test)
-        print("Actual: ", y_test)
-        print("Predicted: ", pred)
-        print("Accuracy: ", accuracy_score(y_test, pred)*100)
+        print("Actual: ", [key_dict[i] for i in y_test])
+        print("Predicted: ", [key_dict[i] for i in pred])
+        print('Accuracy: %lf' % (accuracy_score(y_test, pred) * 100), "%")
 
 
-        # x_min, x_max = x[:, 0].min() - 1, x[:, 0].max() + 1
-        # y_min, y_max = x[:, 1].min() - 1, x[:, 1].max() + 1
-        # xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
-        #                      np.arange(y_min, y_max, 0.1))
-        #
-        # f, axarr = plt.subplots(2, 2, sharex='col', sharey='row', figsize=(10, 8))
-        #
-        # for idx, clf, tt in zip(np.product([0, 1], [0, 1]),
-        #                         [knn],
-        #                         ['KNN (k=7)']):
-        #     Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
-        #     Z = Z.reshape(xx.shape)
-        #
-        #     axarr[idx[0], idx[1]].contourf(xx, yy, Z, alpha=0.4)
-        #     axarr[idx[0], idx[1]].scatter(x[:, 0], x[:, 1], c=y,
-        #                                   s=20, edgecolor='k')
-        #     axarr[idx[0], idx[1]].set_title(tt)
-        #
-        # plt.show()
 class NaiveBase:
     def __init__(self):
-
         print('Created NaiveBase')
-

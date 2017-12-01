@@ -5,8 +5,11 @@ Created on November 14, 2017
 """
 import pandas as pd
 import pymysql
+import sys
+from pandas.plotting import table
+import numpy as np
 from PyQt5.QtCore import pyqtSlot
-
+import matplotlib.pyplot as plt
 import regression
 import correlation
 import classification
@@ -47,6 +50,7 @@ class Query:
             # tries to calculate the age based on query results and count the number of roles per age.
             try:
                 age = int(Release_date) - int(Birth_year)
+                if age > 80: continue
                 if age in query1_dict:
                     query1_dict[age] += 1
                 else:
@@ -77,8 +81,6 @@ class Query:
             raw_data_2.append(response)
 
         df_2 = pd.DataFrame(raw_data_2, columns=("Gross", "Budget"))
-
-        print(df_2)
 
         regression.LRegression(df_2)
 
@@ -156,11 +158,13 @@ class Query:
                    'New Zealand': 12
                    }
         options_l = []
+        c = []
+        b = []
         for key in options:
             options_l.append((key, options[key]))
+            c.append(key)
+            b.append(options[key])
 
-        df = pd.DataFrame(options_l, columns=['Country', 'Code'])
-        print(df)
         for (Country, Budget) in cursor:
             if Budget == 0 or Country == 'New Line':
                 continue
@@ -185,7 +189,6 @@ class Query:
 
 
 class App(QWidget):
-    q = Query()
 
     def __init__(self):
         super().__init__()
@@ -202,6 +205,8 @@ class App(QWidget):
         self.init_ui()
 
     def init_ui(self):
+        qy = Query()
+
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -209,36 +214,39 @@ class App(QWidget):
         self.button_1.setToolTip('Question 1 button')
         self.button_1.move(0, 0)
 
-        # self.button_1.clicked.connect(q.query_1())
-
         # button for question
         self.button_2.setToolTip('Question 2 button')
         self.button_2.move(0, 70)
-        # self.button_2.clicked.connect(q.query_2())
 
         # button for question 3
         self.button_3.setToolTip('Question 3 button')
         self.button_3.move(0, 140)
-        # self.button_3.clicked.connect(q.query_3())
 
         # button for question 4
         self.button_4.setToolTip('Question 4 button')
         self.button_4.move(0, 210)
-        # self.button_4.clicked.connect(q.query_4())
 
         # button for question 5
         self.button_5.setToolTip('Question 5 button')
         self.button_5.move(0, 280)
-        # self.button_5.clicked.connect(q.query_5())
 
         self.show()
+
+        # self.button_1.clicked.connect(qy.query_1())
+        # self.button_2.clicked.connect(qy.query_2())
+        # self.button_3.clicked.connect(qy.query_3())
+        # self.button_4.clicked.connect(qy.query_4())
+        # self.button_5.clicked.connect(qy.query_5())
 
 
 if __name__ == '__main__':
     print('Starting Application')
     q = Query()
-    # q.query_1()
+    q.query_1()
+    q.query_2()
+    q.query_3()
     q.query_4()
-    # application = QApplication(sys.argv)
-    # ex = App()
-    # sys.exit(application.exec_())
+    # q.query_5()
+    application = QApplication(sys.argv)
+    ex = App()
+    sys.exit(application.exec_())

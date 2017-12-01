@@ -12,12 +12,16 @@ from sklearn import model_selection
 
 # This class runs linear regression model on the gross sales and budget of films from the imdb database using this
 # tutorial http://bigdata-madesimple.com/how-to-run-linear-regression-in-python-scikit-learn/
+from sklearn.metrics import accuracy_score
+
+
 class LRegression:
 
     # This creates a new instance of the LRegression class
     # @param data = data frame of the imdb data
     def __init__(self, data):
         self.data = data
+        print("\n\nQ2: As a movie's budget increases do the sales also continuously increase?")
         print('Created Linear Regression')
         self.run_regression()
 
@@ -51,10 +55,10 @@ class LRegression:
         # train data sets
         x_train, x_test, y_train, y_test = model_selection.train_test_split(
             x, self.data.Gross, test_size=0.33, random_state=5)
-        print(x_train.shape)
-        print(x_test.shape)
-        print(y_train.shape)
-        print(y_test.shape)
+        # print(x_train.shape)
+        # print(x_test.shape)
+        # print(y_train.shape)
+        # print(y_test.shape)
 
         # calculate mse for training and test data
         lm.fit(x_train, y_train)
