@@ -7,6 +7,7 @@ Created on November 14, 2017
 import collections
 from scipy.stats.stats import pearsonr
 from scipy.stats.stats import spearmanr
+import pandas as pd
 
 
 # This class calculates the Pearson's correlation coefficient and p-value for a given dataset
@@ -46,7 +47,15 @@ class Pearson:
 
 
 class SpearmanRank:
-    def __init__(self):
+    def __init__(self, data):
         print('Created SpearmanRank')
+        print("What is the probability that a particular genre is more popular in the U.S. vs. other countries?")
+        self.data = data
+        self.run_spearman()
+
+    def run_spearman(self):
+        country_l = self.data[0]
+        budget_l = self.data[1]
+
 
 
