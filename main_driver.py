@@ -3,30 +3,31 @@ Created on November 14, 2017
 @author: Melody Tribble & Xuying Wang
 
 """
-import pandas as pd
-import pymysql
 import sys
-from pandas.plotting import table
-import numpy as np
-from PyQt5.QtCore import pyqtSlot
-import matplotlib.pyplot as plt
 import regression
 import correlation
 import classification
+import pandas as pd
+import pymysql
+from random import shuffle
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt5.QtCore import pyqtSlot
 
 config = pymysql.connect("localhost", "root", "*light*Bright", "IMBD")
 cursor = config.cursor()
 
 
+# This class holds all the queries and data cleaning functionality for each question.
 class Query:
     def __init__(self):
         pass
 
     # This will execute query 1 and call the Pearson's Correlation function
-    # Do the number of parts an actor works on increase, decrease or stay the same with age?
+    # Q1: Do the number of parts an actor works on increase, decrease or stay the same with age?
     @pyqtSlot()
     def query_1(self):
+
+        # grabs the name, title, release date, and birth year, with a limit of 3000 records.
         query1 = ("SELECT  Name, Primary_title, Release_date, Birth_year "
                   "FROM TEMP_DirectorActor, TITLE, PERSON "
                   "WHERE Movie_title = Primary_title "
@@ -49,43 +50,59 @@ class Query:
         for (Actor1_name, Movie_title, Release_date, Birth_year) in cursor:
             # tries to calculate the age based on query results and count the number of roles per age.
             try:
+                # calculate the age
                 age = int(Release_date) - int(Birth_year)
+
+                # remove ages 80+
                 if age > 80: continue
+
+                # if the age is already in the dictionary increment the count
                 if age in query1_dict:
                     query1_dict[age] += 1
+
+                # if the age is not already in the dictionary add a new dict. item
                 else:
                     query1_dict.update({age: 1})
 
-                    # This will catch an exception if either year values cannot be converted to an int.
+            # This will catch an exception if either year values cannot be converted to an int.
             except ValueError:
                 continue
-
-        # print(query1_dict)
 
         # Analyse data with Pearson's Correlation Coefficient
         correlation.Pearson(query1_dict)
 
     # This will execute query 2 and call the Linear Regression function
-    # As a movie's budget increases do the sales also continuously increase
+    # Q2: As a movie's budget increases do the sales also continuously increase
     @pyqtSlot()
     def query_2(self):
+
+        # This selects the total gross and budget for a movie
         query2 = ("SELECT Total_gross , Budget "
                   "FROM MOVIE, TITLE "
-                  "WHERE TM_const=T_const AND NOT Total_gross=0 AND NOT Budget=0 "
+                  "WHERE TM_const=T_const "
+                  "AND NOT Total_gross=0 "
+                  "AND NOT Budget=0 "
                   "ORDER BY Budget "
                   )
 
+        # execute the query
         cursor.execute(query2)
+
+        # store query results here
         raw_data_2 = []
+
+        # adds query results to the list
         for response in cursor:
             raw_data_2.append(response)
 
+        # creates a data frame with the list
         df_2 = pd.DataFrame(raw_data_2, columns=("Gross", "Budget"))
 
+        # Analyses data with Linear Regression
         regression.LRegression(df_2)
 
     # This will execute query 3 and call the KNN function
-    # Can we predict a genre based on the actor and director of a film?
+    # Q3: Can we predict a genre based on the actor and director of a film?
     @pyqtSlot()
     def query_3(self):
 
@@ -114,20 +131,20 @@ class Query:
             if Genre in query3_dict:
                 query3_dict[Genre].append(int(actor_name))
                 query3_dict[Genre].append(int(director_name))
+
             # if the genre doesn't already exist in the dictionary start a new entry
             else:
                 query3_dict.update({Genre: [int(actor_name), int(director_name)]})
 
-        # print dictionary
-        # for key in query3_dict: print(key, query3_dict[key])
-
-        # sent the data to be processed by the K-NearestNeighbor function
+        # send the data to be processed by the K-NearestNeighbor function
         classification.KNN(query3_dict)
 
     # This will execute query 4 and call the Spearman Rank function
-    # Is there a correlation between a movie's country and budget
+    # Q4: Is there a correlation between a movie's country and budget
     @pyqtSlot()
     def query_4(self):
+
+        # This collects the country and budget for each movie
         query4 = ("SELECT Country, Budget "
                   "FROM MOVIE, MOVIE_COUNTRIES, TITLE "
                   "WHERE TM_const = T_const "
@@ -135,14 +152,14 @@ class Query:
                   "ORDER BY Budget "
                   )
 
+        # execute query
         cursor.execute(query4)
 
-        # not sure how we want this data, right now it is creating a list of genres for a particular country.
+        # lists to hold country and budget data
         country_l = []
         budget_l = []
-        # for response in cursor:
-        #     print(response)
 
+        # this holds the key for each countries numerical code
         options = {'USA': 0,
                    'UK': 1,
                    'Mexico': 2,
@@ -157,6 +174,8 @@ class Query:
                    'Japan': 11,
                    'New Zealand': 12
                    }
+
+        # convert into a list for printing
         options_l = []
         c = []
         b = []
@@ -165,27 +184,68 @@ class Query:
             c.append(key)
             b.append(options[key])
 
+        # adds data into respective lists
         for (Country, Budget) in cursor:
+
+            # skip data if the budget is zero or the country is "New Line"
             if Budget == 0 or Country == 'New Line':
                 continue
+            # converts the country string into a unique integer
             country_int = options[Country]
+
             country_l.append(country_int)
             budget_l.append(Budget)
 
         data = country_l, budget_l
+
+        # Analyse with Spearman Rank
         correlation.SpearmanRank(data)
 
-    # Can we predict a director based on actors, genre, budget, gross, and country of a film?
+    # This will execute query 5 and call the Naive Bayes function
+    # Q5: Can we predict a director based release date, duration, imdb score?
     @pyqtSlot()
     def query_5(self):
-        query5 = ("SELECT * "
-                  "FROM EMPLOYEE "
-                  "WHERE employee.Super_ssn IS NOT NULL;")
+        # query5 = ("SELECT DISTINCT Keyword, Director_name "
+        #           "FROM MOVIE_KEYWORD, TEMP_DirectorActor, TITLE "
+        #           "WHERE T_const = TK_const "
+        #           "AND Primary_title = Movie_title "
+        query5 = ("SELECT DISTINCT Keywords, Director_name, Movie_title "
+                  "FROM TEMP_DirectorActor "
+                  "WHERE Director_name = 'Steven Spielberg' "
+                  # "OR Director_name = 'Tim Burton' "
+                  # "OR Director_name = 'Baz Luhrmann' "
+                  # "OR Director_name = 'Darren Aronofsky' "
+                  # "OR Director_name = 'George Lucas' "
+                  # "OR Director_name = 'Spike Jonze' "
+                  # "OR Director_name = 'David Fincher' "
+                  # "OR Director_name = 'Guillermo del Toro' "
+                  # "OR Director_name = 'Quentin Tarantino' "
+                  "OR Director_name = 'Spike Lee' "
+                  # "OR Director_name = 'Gus Van Sant' "
+                  "OR Director_name = 'Woody Allen' "
+                  # "OR Director_name = 'Alfred Hitchcock' "
+                  # "OR Director_name = 'Sofia Coppola' "
+                  # "OR Director_name = 'John Hughes' "
+                  # "OR Director_name = 'Tyler Perry' "
+                  # "OR Director_name = 'John Singleton' "
+                  "OR Director_name = 'Martin Scorsese' ")
 
-        for response in cursor:
-            print(response)
+        cursor.execute(query5)
 
-        config.close()
+        query5_dict = {}
+
+        for (Keyword, Director_name, title) in cursor:
+            keyword = Keyword.split('|')
+            if Director_name in query5_dict:
+                for k in keyword:
+                    query5_dict[Director_name].append(k)
+            else:
+                query5_dict.update({Director_name: keyword})
+
+        for key in query5_dict:
+            print(key, len(query5_dict[key]))
+
+        classification.NaiveBase(query5_dict)
 
 
 class App(QWidget):
@@ -242,11 +302,13 @@ class App(QWidget):
 if __name__ == '__main__':
     print('Starting Application')
     q = Query()
-    q.query_1()
-    q.query_2()
-    q.query_3()
-    q.query_4()
-    # q.query_5()
-    application = QApplication(sys.argv)
-    ex = App()
-    sys.exit(application.exec_())
+    # q.query_1()
+    # q.query_2()
+    # q.query_3()
+    # q.query_4()
+    q.query_5()
+    # application = QApplication(sys.argv)
+    # ex = App()
+    # sys.exit(application.exec_())
+    config.close()
+

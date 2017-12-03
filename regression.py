@@ -46,6 +46,7 @@ class LRegression:
         plt.xlabel("Gross sales: $Y_i$")
         plt.ylabel("Predicted gross sales: $\hat{Y}_i$")
         plt.title("Gross sales vs Predicted gross sales $Y_i$ vs $\hat{Y}_i$")
+
         plt.show()
 
         # calculate mean squared error
@@ -55,10 +56,6 @@ class LRegression:
         # train data sets
         x_train, x_test, y_train, y_test = model_selection.train_test_split(
             x, self.data.Gross, test_size=0.33, random_state=5)
-        # print(x_train.shape)
-        # print(x_test.shape)
-        # print(y_train.shape)
-        # print(y_test.shape)
 
         # calculate mse for training and test data
         lm.fit(x_train, y_train)
