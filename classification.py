@@ -6,13 +6,13 @@ Created on November 14, 2017
 
 # This class implements a k-nearest neighbor using scikit-learn
 import numpy as np
-import pandas as pd
+import itertools
 from sklearn import model_selection
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import MultinomialNB
+
 import matplotlib.pyplot as plt
 
 
@@ -39,19 +39,8 @@ class KNN:
         [[x.append(self.data['Drama'][i:i + 50]), y.append(2)] for i in range(0, len(self.data['Drama']), 50) if
          len(self.data['Drama'][i:i + 50]) == 50]
 
-
         x = np.array(x)
         y = np.array(y)
-
-        # from sklearn.model_selection import KFold
-        # kf = KFold(n_splits=4)
-        # kf.get_n_splits(x)
-        # print(kf)
-        # for train_index, test_index in kf.split(x):
-        #     print("TRAIN:", train_index, "TEST:", test_index)
-        #
-        # x_train, x_test = x[train_index], x[test_index]
-        # y_train, y_test = y[train_index], y[test_index]
 
         x_train, x_test, y_train, y_test = model_selection.train_test_split(
             x, y, test_size=0.33, random_state=42)
@@ -61,17 +50,43 @@ class KNN:
                     2: 'Drama'
                     }
 
-        # print(x_train.shape)
-        # print(x_test.shape)
-        # print(y_train.shape)
-        # print(y_test.shape)
-
         knn = KNeighborsClassifier(n_neighbors=1)
         knn.fit(x_train, y_train)
         pred = knn.predict(x_test)
-        print("Actual: ", [key_dict[i] for i in y_test])
-        print("Predicted: ", [key_dict[i] for i in pred])
-        print('Accuracy: %lf' % (accuracy_score(y_test, pred) * 100), "%")
+
+        actual = []
+        predicted = []
+        accuracy = accuracy_score(y_test, pred) * 100
+        mislabled_points = (y_test != pred).sum()
+        c_matrix = confusion_matrix(y_test, pred)
+
+        for i in y_test:
+            actual.append(key_dict[i])
+        for i in pred:
+            predicted.append(key_dict[i])
+
+        print("Actual: ", actual)
+        print("Predicted: ", predicted)
+        print('Accuracy: %lf' % accuracy, "%")
+        print("Number of mislabeled points out of a total %d points : %d" % (x.shape[0], mislabled_points))
+
+        # Compute confusion matrix
+        np.set_printoptions(precision=2)
+
+        # Plot non-normalized confusion matrix
+        plt.figure()
+        plot_confusion_matrix(c_matrix,
+                              classes=key_dict.values(),
+                              title='Confusion matrix, without normalization')
+
+        # Plot normalized confusion matrix
+        plt.figure()
+        plot_confusion_matrix(c_matrix,
+                              classes=key_dict.values(),
+                              normalize=True,
+                              title='Normalized confusion matrix')
+
+        plt.show()
 
 
 class NaiveBase:
@@ -146,7 +161,7 @@ class NaiveBase:
         # x = list of keyword lists
         # y = list of the int associated with a director via director key
         for key in self.data:
-            print(key, len(self.data[key]))
+            # print(key, len(self.data[key]))
             director_int = director_dict[key]
             [[x.append(self.data[key][i:i + 15]), y.append(director_int)] for i in range(0, len(self.data[key]), 15) if len(self.data[key][i:i + 15]) == 15]
 
@@ -167,15 +182,83 @@ class NaiveBase:
             x_encoded, y, test_size=0.33, random_state=42)
 
         # run gaussian naive bayes on data
-        gnb = BernoulliNB()
-        gnb.fit(x_train, y_train)
-        y_pred = gnb.predict(x_test)
+        mnb = MultinomialNB()
+        mnb.fit(x_train, y_train)
+        y_pred = mnb.predict(x_test)
 
-        print("Actual: ", [director_reverse_dict[i] for i in y_test])
-        print("Predicted: ", [director_reverse_dict[i] for i in y_pred])
-        print('Accuracy: %lf' % (accuracy_score(y_test, y_pred) * 100), "%")
+        # determine accuracy and plot
+        accuracy = accuracy_score(y_test, y_pred) * 100
+        mislabled_points = (y_test != y_pred).sum()
+        c_matrix = confusion_matrix(y_test, y_pred)
 
-        print("Number of mislabeled points out of a total %d points : %d"
-              % (x_encoded.shape[0], (y_test != y_pred).sum()))
+        actual = []
+        predicted = []
+        for i in y_pred:
+            predicted.append(director_reverse_dict[i])
+
+        for i in y_test:
+            actual.append(director_reverse_dict[i])
+
+        print("Actual: ", actual)
+        print("Predicted: ", predicted)
+        print("\nNumber of mislabeled points out of a total %d points : %d" % (x_encoded.shape[0], mislabled_points))
+        print('Accuracy: %lf' % accuracy, "%")
+
+
+        # Compute confusion matrix
+        np.set_printoptions(precision=2)
+
+        # Plot non-normalized confusion matrix
+        plt.figure()
+        plot_confusion_matrix(c_matrix,
+                              classes=director_dict.keys(),
+                              title='Confusion matrix, without normalization')
+
+        # Plot normalized confusion matrix
+        plt.figure()
+        plot_confusion_matrix(c_matrix,
+                              normalize=True,
+                              classes=director_dict.keys(),
+                              title='Normalized confusion matrix')
+
+        plt.show()
+
+
+# this method creates a confusion matrix and was imported from:
+# http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
 
 

@@ -3,14 +3,13 @@ Created on November 14, 2017
 @author: Melody Tribble & Xuying Wang
 
 """
-import sys
 import regression
 import correlation
 import classification
 import pandas as pd
 import pymysql
 from random import shuffle
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt5.QtWidgets import QWidget, QPushButton
 from PyQt5.QtCore import pyqtSlot
 
 config = pymysql.connect("localhost", "root", "*light*Bright", "IMBD")
@@ -302,10 +301,10 @@ class App(QWidget):
 if __name__ == '__main__':
     print('Starting Application')
     q = Query()
-    # q.query_1()
-    # q.query_2()
-    # q.query_3()
-    # q.query_4()
+    q.query_1()
+    q.query_2()
+    q.query_3()
+    q.query_4()
     q.query_5()
     # application = QApplication(sys.argv)
     # ex = App()
