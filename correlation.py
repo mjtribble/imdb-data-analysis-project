@@ -8,10 +8,9 @@ import collections
 from scipy.stats.stats import pearsonr
 from scipy.stats.stats import spearmanr
 import matplotlib.pyplot as plt
-import pandas as pd
 
 
-# This class calculates the Pearson's correlation coefficient and p-value for a given dataset
+# This class calculates the Pearson's correlation coefficient and p-value for a given data set
 class Pearson:
 
     # This creates a new instance of the Pearson Class
@@ -23,7 +22,7 @@ class Pearson:
         print("Using Pearson's Correlation Coefficient")
         self.run_pearson()
 
-    # This splits the data into two lists and runs personr on it.
+    # This splits the data into two lists and runs pearson's on it.
     def run_pearson(self):
 
         age_list = []
@@ -37,15 +36,13 @@ class Pearson:
             age_list.append(key)
             num_roles_list.append(od[key])
 
-        # print("age_list: ", age_list)
-        # print("num_roles_list: ", num_roles_list)
-
         # set pcc and pvalue as the values returned from pearsonr()
         pcc, pvalue = pearsonr(age_list, num_roles_list)
 
         print("Pearson correlation coefficient: ", pcc)
         print("P-value: ", pvalue)
 
+        # visualize results
         plt.scatter(age_list, num_roles_list, s=10)
         plt.xlabel("Actor Age")
         plt.ylabel("Number of roles")
@@ -53,17 +50,24 @@ class Pearson:
         plt.show()
 
 
+# This class calculates the Spearman Rank correlation coefficient and p-value for a given
+# data set using the scipy.stats library
 class SpearmanRank:
+
+    # creates a new instance of Spearman Rank and starts the model
+    # @ param data = data to run the model on
     def __init__(self, data):
         print("\n\nQ4: Is there a correlation between a movie's country and budget?")
         print('Created SpearmanRank')
         self.data = data
         self.run_spearman()
 
+    # This preps the data, starts the spearman rank model, and visualizes the results
     def run_spearman(self):
         country_l = self.data[0]
         budget_l = self.data[1]
 
+        # sets the results from spearmanr to the coefficient and p-value variables
         coef, pval = spearmanr(country_l, budget_l)
 
         print("Spearman Coefficient: ", coef)
@@ -74,4 +78,4 @@ class SpearmanRank:
         plt.xlabel("Country Code")
         plt.ylabel("Budget")
         plt.title("Relationship between Country and Budget")
-        plt.show()
+        # plt.show()

@@ -8,22 +8,16 @@ import correlation
 import classification
 import pandas as pd
 import pymysql
-from random import shuffle
-from PyQt5.QtWidgets import QWidget, QPushButton
-from PyQt5.QtCore import pyqtSlot
-
-config = pymysql.connect("localhost", "root", "*light*Bright", "IMBD")
-cursor = config.cursor()
 
 
 # This class holds all the queries and data cleaning functionality for each question.
 class Query:
     def __init__(self):
-        pass
+        self.config = pymysql.connect("localhost", "root", "*light*Bright", "IMBD")
+        self.cursor = self.config.cursor()
 
     # This will execute query 1 and call the Pearson's Correlation function
     # Q1: Do the number of parts an actor works on increase, decrease or stay the same with age?
-    @pyqtSlot()
     def query_1(self):
 
         # grabs the name, title, release date, and birth year, with a limit of 3000 records.
@@ -40,13 +34,13 @@ class Query:
                   "LIMIT 3000 ")
 
         # Run the query
-        cursor.execute(query1)
+        self.cursor.execute(query1)
 
         # This will hold the query results
         query1_dict = {}
 
         # Creates a dictionary where the key a person's age, and the value is count of roles for that age
-        for (Actor1_name, Movie_title, Release_date, Birth_year) in cursor:
+        for (Actor1_name, Movie_title, Release_date, Birth_year) in self.cursor:
             # tries to calculate the age based on query results and count the number of roles per age.
             try:
                 # calculate the age
@@ -72,7 +66,6 @@ class Query:
 
     # This will execute query 2 and call the Linear Regression function
     # Q2: As a movie's budget increases do the sales also continuously increase
-    @pyqtSlot()
     def query_2(self):
 
         # This selects the total gross and budget for a movie
@@ -85,13 +78,13 @@ class Query:
                   )
 
         # execute the query
-        cursor.execute(query2)
+        self.cursor.execute(query2)
 
         # store query results here
         raw_data_2 = []
 
         # adds query results to the list
-        for response in cursor:
+        for response in self.cursor:
             raw_data_2.append(response)
 
         # creates a data frame with the list
@@ -102,7 +95,6 @@ class Query:
 
     # This will execute query 3 and call the KNN function
     # Q3: Can we predict a genre based on the actor and director of a film?
-    @pyqtSlot()
     def query_3(self):
 
         # pulls the genre and actor/director's unique name ids for each title
@@ -114,13 +106,13 @@ class Query:
                   )
 
         # execute query
-        cursor.execute(query3)
+        self.cursor.execute(query3)
 
         # This dictionary holds each genre as a key
         # with list integers that correspond to an actor or director as the value
         query3_dict = {}
 
-        for (Genre, ACTOR_N_const, DIRECTOR_N_const) in cursor:
+        for (Genre, ACTOR_N_const, DIRECTOR_N_const) in self.cursor:
 
             # remove the first 4 characters of the name id so that only numbers remain
             actor_name = ACTOR_N_const[4:]
@@ -140,7 +132,6 @@ class Query:
 
     # This will execute query 4 and call the Spearman Rank function
     # Q4: Is there a correlation between a movie's country and budget
-    @pyqtSlot()
     def query_4(self):
 
         # This collects the country and budget for each movie
@@ -152,7 +143,7 @@ class Query:
                   )
 
         # execute query
-        cursor.execute(query4)
+        self.cursor.execute(query4)
 
         # lists to hold country and budget data
         country_l = []
@@ -184,7 +175,7 @@ class Query:
             b.append(options[key])
 
         # adds data into respective lists
-        for (Country, Budget) in cursor:
+        for (Country, Budget) in self.cursor:
 
             # skip data if the budget is zero or the country is "New Line"
             if Budget == 0 or Country == 'New Line':
@@ -202,7 +193,6 @@ class Query:
 
     # This will execute query 5 and call the Naive Bayes function
     # Q5: Can we predict a director based release date, duration, imdb score?
-    @pyqtSlot()
     def query_5(self):
         # query5 = ("SELECT DISTINCT Keyword, Director_name "
         #           "FROM MOVIE_KEYWORD, TEMP_DirectorActor, TITLE "
@@ -229,11 +219,11 @@ class Query:
                   # "OR Director_name = 'John Singleton' "
                   "OR Director_name = 'Martin Scorsese' ")
 
-        cursor.execute(query5)
+        self.cursor.execute(query5)
 
         query5_dict = {}
 
-        for (Keyword, Director_name, title) in cursor:
+        for (Keyword, Director_name, title) in self.cursor:
             keyword = Keyword.split('|')
             if Director_name in query5_dict:
                 for k in keyword:
@@ -241,62 +231,10 @@ class Query:
             else:
                 query5_dict.update({Director_name: keyword})
 
-        for key in query5_dict:
-            print(key, len(query5_dict[key]))
-
         classification.NaiveBase(query5_dict)
 
-
-class App(QWidget):
-
-    def __init__(self):
-        super().__init__()
-        self.title = 'Choose a Question'
-        self.left = 10
-        self.top = 10
-        self.width = 640
-        self.height = 480
-        self.button_1 = QPushButton('Question 1', self)
-        self.button_2 = QPushButton('Question 2', self)
-        self.button_3 = QPushButton('Question 3', self)
-        self.button_4 = QPushButton('Question 4', self)
-        self.button_5 = QPushButton('Question 5', self)
-        self.init_ui()
-
-    def init_ui(self):
-        qy = Query()
-
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
-        # button for question 1
-        self.button_1.setToolTip('Question 1 button')
-        self.button_1.move(0, 0)
-
-        # button for question
-        self.button_2.setToolTip('Question 2 button')
-        self.button_2.move(0, 70)
-
-        # button for question 3
-        self.button_3.setToolTip('Question 3 button')
-        self.button_3.move(0, 140)
-
-        # button for question 4
-        self.button_4.setToolTip('Question 4 button')
-        self.button_4.move(0, 210)
-
-        # button for question 5
-        self.button_5.setToolTip('Question 5 button')
-        self.button_5.move(0, 280)
-
-        self.show()
-
-        # self.button_1.clicked.connect(qy.query_1())
-        # self.button_2.clicked.connect(qy.query_2())
-        # self.button_3.clicked.connect(qy.query_3())
-        # self.button_4.clicked.connect(qy.query_4())
-        # self.button_5.clicked.connect(qy.query_5())
-
+    def end_query(self):
+        self.config.close()
 
 if __name__ == '__main__':
     print('Starting Application')
@@ -306,8 +244,5 @@ if __name__ == '__main__':
     q.query_3()
     q.query_4()
     q.query_5()
-    # application = QApplication(sys.argv)
-    # ex = App()
-    # sys.exit(application.exec_())
-    config.close()
+    q.end_query()
 

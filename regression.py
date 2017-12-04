@@ -47,6 +47,7 @@ class LRegression:
         plt.ylabel("Predicted gross sales: $\hat{Y}_i$")
         plt.title("Gross sales vs Predicted gross sales $Y_i$ vs $\hat{Y}_i$")
 
+        # visualize
         plt.show()
 
         # calculate mean squared error
